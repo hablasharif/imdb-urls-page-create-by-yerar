@@ -3,15 +3,21 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_movie_data(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    
+    for attempt in range(3):
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            soup = BeautifulSoup(response.content, "html.parser")
+            movie_titles = [title.text for title in soup.find_all("h3", class_="lister-item-header")]
+            return movie_titles
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed, attempt {attempt + 1}/3")
+    
+    # If all attempts fail, return an empty list
+    return []
 
-    # Extract your desired information here
-    # For example, you might want to extract movie titles, ratings, etc.
-    # Replace the following lines with your actual extraction logic
-    movie_titles = [title.text for title in soup.find_all("h3", class_="lister-item-header")]
-
-    return movie_titles
 
 def main():
     st.title("IMDb Movie Scraper")
