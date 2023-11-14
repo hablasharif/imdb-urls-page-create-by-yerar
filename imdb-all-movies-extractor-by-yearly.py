@@ -1,3 +1,4 @@
+
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
@@ -5,29 +6,26 @@ from urllib.parse import urljoin
 
 def scrape_imdb_movies(base_url):
     current_url = base_url
-
-    # Create a session for making requests
     session = requests.Session()
 
     movie_info_list = []
 
     while current_url:
-        # Use the session to reuse the underlying TCP connection
         response = session.get(current_url)
-
-        # Use the 'lxml' parser for faster parsing
         soup = BeautifulSoup(response.content, "lxml")
 
-        # Extract your desired information here
-        # For example, you might want to extract movie titles, ratings, etc.
-        # Update this part based on the structure of the IMDb page
+        # Extract movie titles and IMDb links
+        movie_elements = soup.find_all("h3", {"class": "lister-item-header"})
+        for movie_element in movie_elements:
+            # Extract movie title
+            title = movie_element.a.text.strip()
 
-        # For demonstration, let's extract movie titles
-        movie_titles = soup.find_all("h3", {"class": "lister-item-header"})
-        for title in movie_titles:
-            movie_info_list.append(title.text.strip())
+            # Extract IMDb link
+            imdb_link = urljoin(base_url, movie_element.a["href"])
 
-        # Find the "Next" link if it exists
+            # Append title and IMDb link to the list
+            movie_info_list.append({"title": title, "imdb_link": imdb_link})
+
         next_link = soup.find("a", {"class": "lister-page-next"})
 
         if next_link:
@@ -49,11 +47,12 @@ if st.button("Scrape IMDb"):
     st.text("Scraping... Please wait.")
     movie_list = scrape_imdb_movies(base_url)
 
-    # Display the scraped movie titles
+    # Display the scraped movie titles and IMDb links
     if movie_list:
-        st.text("Scraped Movie Titles:")
-        for movie_title in movie_list:
-            st.write(movie_title)
+        st.text("Scraped Movie Titles and IMDb Links:")
+        for movie_info in movie_list:
+            st.write(f"Title: {movie_info['title']}")
+            st.write(f"IMDb Link: {movie_info['imdb_link']}")
+            st.write("-" * 50)
     else:
         st.text("No movies found.")
-
