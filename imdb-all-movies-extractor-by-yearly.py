@@ -17,7 +17,9 @@ def get_movie_data(url):
 def main():
     st.title("IMDb Movie Scraper")
 
-    base_url = "https://www.imdb.com/search/title/?title_type=feature&year=2022-01-01,2022-12-31"
+    # Input for base URL
+    base_url = st.text_input("Enter IMDb Base URL:", "https://www.imdb.com/search/title/?title_type=feature&year=2022-01-01,2022-12-31")
+
     increment = 50  # Increment by 50 to get the desired page numbers
     results_per_page = 50  # Number of results per page
     total_results = 10000  # Total number of results
@@ -25,9 +27,16 @@ def main():
 
     movie_data = []
 
+    # Progress bar
+    progress_bar = st.progress(0)
+
     for i in range(increment + 1, num_links * increment + 1, increment):
         url = f"{base_url}&start={i}&ref_=adv_nxt"
         movie_data.extend(get_movie_data(url))
+
+        # Update progress bar
+        progress_percentage = i / (num_links * increment) * 100
+        progress_bar.progress(progress_percentage)
 
     st.write(f"Number of movies: {len(movie_data)}")
 
