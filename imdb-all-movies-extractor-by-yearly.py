@@ -1,8 +1,9 @@
-
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import csv
+from datetime import datetime
 
 def scrape_imdb_movies(base_url):
     current_url = base_url
@@ -54,5 +55,16 @@ if st.button("Scrape IMDb"):
             st.write(f"Title: {movie_info['title']}")
             st.write(f"IMDb Link: {movie_info['imdb_link']}")
             st.write("-" * 50)
+
+        # Save to CSV and provide download link
+        filename = f"imdb_movies_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['title', 'imdb_link']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for movie_info in movie_list:
+                writer.writerow(movie_info)
+
+        st.markdown(f"Download the scraped data as CSV: [**{filename}**](/{filename})")
     else:
         st.text("No movies found.")
