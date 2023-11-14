@@ -27,15 +27,15 @@ def main():
 
         movie_data = []
 
-        # Progress bar
-        progress_bar = st.progress(0)
+        # Create an empty element for progress bar
+        progress_bar = st.empty()
 
         for i in range(increment + 1, num_links * increment + 1, increment):
             url = f"{base_url}&start={i}&ref_=adv_nxt"
             movie_data.extend(get_movie_data(url))
 
             # Update progress bar
-            progress_percentage = i / (num_links * increment) * 100
+            progress_percentage = i / (num_links * increment)
             progress_bar.progress(progress_percentage)
 
         st.write(f"Number of movies: {len(movie_data)}")
